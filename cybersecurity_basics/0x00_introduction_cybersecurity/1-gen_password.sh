@@ -1,2 +1,2 @@
 #!/bin/bash
-tr -dc '[:alnum:]' < /dev/urandom | head -c "${1:-32}"; echo
+LC_ALL=C tr -dc '[:alnum:]' < /dev/urandom | head -c "${1:-32}"; echo
