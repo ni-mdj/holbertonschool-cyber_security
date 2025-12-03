@@ -1,2 +1,2 @@
 #!/bin/bash
-ps -u "$1" | grep -v " 0 0 "
+ps -u "$1" -o user,pid,vsz,rss,cmd | grep -v " 0 0 "
