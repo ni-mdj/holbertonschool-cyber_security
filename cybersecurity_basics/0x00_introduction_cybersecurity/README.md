@@ -14,6 +14,7 @@ At the end of this project, you are expected to be able to explain to anyone, wi
 - What is the role of access control in cybersecurity?
 - How does multi-factor authentication enhance security?
 - What are the common methods for securing a network?
+
 ## Requirements
 General
 
@@ -26,3 +27,19 @@ General
 - You are not allowed to use backticks, &&, || or ;.
 - Your code should use the Betty style. It will be checked using betty-style.pl and betty-doc.pl
 - You are not Allowed to use Neither Printf.
+
+## Project Overview
+Introductory Bash scripts that practice core security tasks:
+- `0-release.sh`: print the Linux distribution name.
+- `1-gen_password.sh`: generate a random alphanumeric password of given length using `/dev/urandom`.
+- `2-sha256_validator.sh`: verify a file’s SHA-256 hash and report OK/FAILED.
+- `3-gen_key.sh`: create a 4096-bit RSA SSH key pair via OpenSSH.
+- `4-root_process.sh`: list processes for a given user, excluding entries with zero VSZ/RSS.
+
+## Usage
+Make scripts executable with `chmod +x <file>` then run:
+- `./0-release.sh`
+- `./1-gen_password.sh 20`
+- `./2-sha256_validator.sh file hash`
+- `./3-gen_key.sh new_key`
+- `./4-root_process.sh root`
