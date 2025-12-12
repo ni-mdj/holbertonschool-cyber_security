@@ -1,2 +1,2 @@
 #!/bin/bash
-dig "$1" ANY +noall +answer
+subfinder -silent -d $1 -o $1.txt -oI -nW
