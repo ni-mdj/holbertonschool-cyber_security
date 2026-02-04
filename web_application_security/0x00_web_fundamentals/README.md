@@ -1,14 +1,11 @@
 # Web Fundamentals
 
-Project badge: 0%
-
-Level: Amateur
-
-Author: Yosri Ghorbel
-
-Weight: 2
-
-Your score will be updated as you progress.
+## Project Info
+- Project badge: 0%
+- Level: Amateur
+- Author: Yosri Ghorbel
+- Weight: 2
+- Your score will be updated as you progress.
 
 ## Description
 This project introduces core web fundamentals and basic web application security concepts.
@@ -46,14 +43,14 @@ At the end of this project, you are expected to be able to explain to anyone, wi
 
 ## Requirements
 General:
-- All your scripts will be tested on Kali Linux 2023.3
-- All your scripts should be exactly two lines long (`wc -l file` prints 2)
-- You must substitute the IP range for `$1`
-- All your files should end with a new line
-- The first line of all your files should be exactly `#!/bin/bash`
-- A README.md file at the root of the project directory is mandatory
-- Your code should use the Betty style (checked with `betty-style.pl` and `betty-doc.pl`)
-- All your files must be executable
+- All your scripts will be tested on Kali Linux 2023.3.
+- All your scripts should be exactly two lines long (`wc -l file` prints 2).
+- You must substitute the IP range for `$1`.
+- All your files should end with a new line.
+- The first line of all your files should be exactly `#!/bin/bash`.
+- A README.md file at the root of the project directory is mandatory.
+- Your code should use the Betty style (checked with `betty-style.pl` and `betty-doc.pl`).
+- All your files must be executable.
 
 ## More Info
 Install curl:
@@ -75,6 +72,16 @@ Check SQLmap version:
 ```bash
 sqlmap --version
 ```
+
+## Project Files
+- `1-host_header_injection.sh`: host header injection helper script.
+- `2-flag.txt`: flag for task 2.
+- `3-xss_payload.txt`: stored/reflected XSS payload for task 3.
+- `4-flag.txt`: flag for task 4.
+- `5-ticket.txt`: ticket artifact for task 5.
+- `6-flag.txt`: flag for task 6.
+- `7-rce_payload.txt`: RCE payload for task 7.
+- `8-flag.txt`: flag for task 8.
 
 ## Tasks
 ### 0. Welcome
@@ -143,5 +150,5 @@ Via browser:
 
 ## Repo
 - GitHub repository: holbertonschool-cyber_security
-- Directory: web_application_security/0x00_web_fundamentals
-- File: README.md
+- Directory: `web_application_security/0x00_web_fundamentals`
+- File: `README.md`

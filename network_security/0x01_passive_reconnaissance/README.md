@@ -1,5 +1,6 @@
 # Passive Reconnaissance
 
+## Description
 Collect public information about a target without direct interaction beyond public DNS/WHOIS sources. Scripts are short Bash commands that automate common passive recon queries.
 
 ## Learning Objectives
@@ -33,3 +34,8 @@ Make scripts executable with `chmod +x <file>` then run:
 
 ## Notes
 - Run reconnaissance only on domains you are authorized to test.
+
+## Repo
+- GitHub repository: holbertonschool-cyber_security
+- Directory: `network_security/0x01_passive_reconnaissance`
+- File: `README.md`

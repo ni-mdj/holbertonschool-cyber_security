@@ -1,5 +1,6 @@
 # Wireshark Basics
 
+## Description
 Introductory exercises for building Wireshark display filters that isolate specific network traffic patterns.
 
 ## Learning Objectives
@@ -17,3 +18,8 @@ Introductory exercises for building Wireshark display filters that isolate speci
 
 ## Notes
 - Always capture only traffic you are authorized to analyze.
+
+## Repo
+- GitHub repository: holbertonschool-cyber_security
+- Directory: `network_security/0x05_wireshark_basics`
+- File: `README.md`

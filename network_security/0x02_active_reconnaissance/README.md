@@ -1,5 +1,6 @@
 # Active Reconnaissance
 
+## Description
 Capture findings from direct interaction with a target system. This project stores answers from scans and enumeration steps as plain text artifacts.
 
 ## Learning Objectives
@@ -20,3 +21,8 @@ Capture findings from direct interaction with a target system. This project stor
 
 ## Notes
 - Perform active reconnaissance only with explicit authorization and within scope.
+
+## Repo
+- GitHub repository: holbertonschool-cyber_security
+- Directory: `network_security/0x02_active_reconnaissance`
+- File: `README.md`
