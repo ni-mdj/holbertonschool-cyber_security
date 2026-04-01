@@ -1,83 +1,81 @@
 #!/usr/bin/python3
-# Lit la zone heap d'un process et remplace une chaîne ASCII par une autre."""
+"""Find and replace an ASCII string in the heap of a running process."""
+
 import sys
 
 
-def usage():
+def usage_exit():
+    """Print usage on stdout and exit with status 1."""
     print("Usage: read_write_heap.py pid search_string replace_string")
     sys.exit(1)
 
 
-if len(sys.argv) != 4:
-    usage()
-
-pid_arg = sys.argv[1]
-search = sys.argv[2]
-replace = sys.argv[3]
-
-try:
-    pid = int(pid_arg)
-    if pid <= 0:
-        raise ValueError
-except ValueError:
-    usage()
-
-try:
-    search_b = search.encode("ascii")
-    replace_b = replace.encode("ascii")
-except UnicodeEncodeError:
-    usage()
-
-if len(search_b) == 0 or len(replace_b) > len(search_b):
-    usage()
-
-maps_path = "/proc/{}/maps".format(pid)
-mem_path = "/proc/{}/mem".format(pid)
-heap_start = None
-heap_end = None
-
-try:
+def parse_heap_bounds(pid):
+    """Return (heap_start, heap_end) from /proc/<pid>/maps."""
+    maps_path = f"/proc/{pid}/maps"
     with open(maps_path, "r", encoding="utf-8") as maps_file:
         for line in maps_file:
-            if "[heap]" in line:
-                addr = line.split()[0]
-                start, end = addr.split("-")
-                heap_start = int(start, 16)
-                heap_end = int(end, 16)
-                break
-except FileNotFoundError:
-    print("Process not found")
-    sys.exit(1)
-except PermissionError:
-    print("Permission denied")
-    sys.exit(1)
+            if "[heap]" not in line:
+                continue
+            region = line.split()[0]
+            start_s, end_s = region.split("-")
+            return int(start_s, 16), int(end_s, 16)
+    raise RuntimeError("Heap not found")
 
-if heap_start is None or heap_end is None:
-    print("Heap not found")
-    sys.exit(1)
 
-payload = replace_b + b"\x00" * (len(search_b) - len(replace_b))
+def main():
+    """Program entry point."""
+    if len(sys.argv) != 4:
+        usage_exit()
 
-try:
-    with open(mem_path, "rb+") as mem_file:
-        mem_file.seek(heap_start)
-        heap_data = mem_file.read(heap_end - heap_start)
-        index = heap_data.find(search_b)
+    pid_s, search_s, replace_s = sys.argv[1], sys.argv[2], sys.argv[3]
 
-        if index == -1:
-            print("String not found in heap")
-            sys.exit(0)
+    try:
+        pid = int(pid_s)
+        if pid <= 0:
+            raise ValueError
+    except ValueError:
+        usage_exit()
 
-        target = heap_start + index
-        mem_file.seek(target)
-        mem_file.write(payload)
+    try:
+        search_b = search_s.encode("ascii")
+        replace_b = replace_s.encode("ascii")
+    except UnicodeEncodeError:
+        usage_exit()
 
-        print("Done")
-        print("Heap:", hex(heap_start), "-", hex(heap_end))
-        print("Address:", hex(target))
-except FileNotFoundError:
-    print("Process not found")
-    sys.exit(1)
-except PermissionError:
-    print("Permission denied")
-    sys.exit(1)
+    if len(search_b) == 0 or len(replace_b) > len(search_b):
+        usage_exit()
+
+    try:
+        heap_start, heap_end = parse_heap_bounds(pid)
+        mem_path = f"/proc/{pid}/mem"
+        payload = replace_b + (b"\x00" * (len(search_b) - len(replace_b)))
+
+        with open(mem_path, "rb+") as mem_file:
+            mem_file.seek(heap_start)
+            heap_data = mem_file.read(heap_end - heap_start)
+            offset = heap_data.find(search_b)
+            if offset == -1:
+                print("String not found in heap")
+                return
+
+            write_addr = heap_start + offset
+            mem_file.seek(write_addr)
+            mem_file.write(payload)
+
+            print(f"Heap: {hex(heap_start)}-{hex(heap_end)}")
+            print(f"Found at: {hex(write_addr)}")
+            print(f"Replaced '{search_s}' with '{replace_s}'")
+    except FileNotFoundError:
+        print("Process not found")
+        sys.exit(1)
+    except PermissionError:
+        print("Permission denied")
+        sys.exit(1)
+    except RuntimeError as err:
+        print(err)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
