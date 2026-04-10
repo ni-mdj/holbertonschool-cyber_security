@@ -1,2 +1,2 @@
-network_security/0x07_nmap_post_port_scan_scripting
-File: 5-service_enumeration.sh
+#!/bin/bash
+nmap --script=vulners -p 80,443 $1
