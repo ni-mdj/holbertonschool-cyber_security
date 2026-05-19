@@ -1,0 +1,23 @@
+FLAG{AD_Domain_Reconnaissance_Complete}
+
+=== Domain Reconnaissance Challenge ===
+
+Objective: Enumerate Active Directory domain and extract the hidden flag from non-standard attributes.
+
+Steps:
+1. Query the domain object using ldapsearch or PowerShell Get-ADDomain
+2. Request all attributes explicitly to reveal non-standard fields
+3. Search for hidden flag in custom/non-standard attributes
+4. Document findings in your report
+
+Key Points:
+- Standard queries may not return all attributes
+- Use explicit property requests to reveal hidden fields
+- Check custom attributes and extended properties
+- Domain object path: CN=...
+
+Success Criteria:
+- Successfully connected to Active Directory
+- Located and extracted the hidden flag
+- Identified the specific attribute containing the flag
+- Documented the reconnaissance methodology
