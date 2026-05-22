@@ -1,68 +1,297 @@
 # 0x01 - AD Basics And Concepts
 
-## Overview
-This module covers fundamental Active Directory (AD) concepts and basic reconnaissance techniques. You'll learn how to query and enumerate Active Directory domain objects to extract critical information.
+## 📋 Module Overview
 
-## Learning Objectives
+This comprehensive module dives deep into **Active Directory (AD) architecture** and reconnaissance techniques. Active Directory is the backbone of identity and access management in over 90% of enterprise environments, making it the **primary target for attackers**. This module teaches you how to enumerate, analyze, and exploit AD environments like a red teamer would.
 
-✅ Understand Active Directory structure and domain objects  
-✅ Perform domain enumeration using various tools  
-✅ Extract both standard and non-standard attributes  
-✅ Identify and locate hidden information in domain objects  
-✅ Document reconnaissance findings  
+### Why Active Directory Matters
+- 🏢 Used in 90%+ of enterprises globally
+- 🎯 #1 target for ransomware and APT actors
+- 🔑 Gateway to privilege escalation and lateral movement
+- 💼 Controls access to critical business resources
+- ⚠️ Misconfiguration is rampant in real environments
 
-## Challenge 0: Domain Reconnaissance - Extracting Core Domain Information
+## 🎯 Learning Objectives
 
-### Objective
-Every Active Directory environment exposes fundamental information through its root domain object. Your goal is to:
-- Query the Active Directory domain object
-- Inspect both standard and non-standard attributes
-- Identify the attribute containing the hidden flag
+By completing this module, you will be able to:
 
-### Key Concepts
+✅ **Explain Active Directory fundamentals** - Structure, domains, and trust relationships  
+✅ **Understand authentication & authorization** - How AD verifies and authorizes users  
+✅ **Enumerate domain information** - Query DC objects, users, groups, GPOs  
+✅ **Identify domain attributes** - Standard vs. non-standard/custom attributes  
+✅ **Extract hidden information** - Locate flags and sensitive data in AD objects  
+✅ **Document reconnaissance findings** - Create professional reports from AD enumeration  
+✅ **Identify misconfigurations** - Spot security weaknesses in AD setup  
+✅ **Prepare for exploitation** - Understand attack vectors for future modules  
 
-#### Active Directory Domain Structure
+## 📚 Prerequisites & Setup
+
+### Required Knowledge
+- Basic networking (TCP/IP, DNS)
+- Understanding of LDAP protocol
+- Command-line proficiency (Bash/PowerShell)
+- Basic Windows Server concepts
+
+### Required Infrastructure
+- **Windows Server 2019** - Domain Controller (DC)
+- **Windows 11 Enterprise** - Member workstation
+- **Kali Linux** - Attacker machine
+- All VMs on the **same virtual network**
+- **Credentials**: labuser / P@ssw0rd123!
+
+### Tools to Install
+```bash
+# On Kali Linux / Mac
+sudo apt-get install -y ldap-utils nmap smbclient
+# or on Mac:
+brew install openldap nmap
 ```
-Domain Root (CN=...)
-├── Users
-├── Computers
-├── Groups
+
+## 📖 Key Concepts You Need to Know
+
+### 1. What is Active Directory?
+Active Directory is Microsoft's **directory service** for Windows networks. Think of it as a phonebook for your company's IT infrastructure - it stores and manages:
+- **Users** - Employee accounts
+- **Computers** - Workstations and servers
+- **Groups** - Collections of users for permission management
+- **Group Policy Objects (GPOs)** - Configuration settings
+- **Organizational Units (OUs)** - Logical containers for organizing objects
+- **Resources** - Printers, shared folders, databases, etc.
+
+### 2. Domain vs Forest
+```
+Forest (company.com)
+├── Domain 1: corp.company.com
+│   ├── OUs
+│   ├── Users
+│   ├── Computers
+│   └── Groups
+└── Domain 2: dev.company.com
+    ├── OUs
+    ├── Users
+    ├── Computers
+    └── Groups
+```
+
+### 3. Domain Controllers (DCs)
+- Windows Server machines that **host and manage Active Directory**
+- Store the AD database (ntds.dit file)
+- Authenticate users and computers
+- Replicate AD data between DCs
+- Listen on **LDAP (port 389)** and **Kerberos (port 88)**
+
+### 4. Authentication vs Authorization
+| Aspect | Definition | Example |
+|--------|-----------|---------|
+| **Authentication** | "Who are you?" - Verifying identity | User enters username/password |
+| **Authorization** | "What can you do?" - Granting permissions | User can access File Share A but not B |
+
+### 5. LDAP (Lightweight Directory Access Protocol)
+- Protocol for querying and modifying AD objects
+- Default port: **389** (unencrypted) or **636** (SSL/TLS)
+- Uses **Distinguished Names (DN)** to identify objects
+- Example DN: `CN=Administrator,CN=Users,DC=lab,DC=local`
+
+### 6. Domains and Trust Relationships
+```
+parent.local (Parent Domain)
+    ↕ (Two-way trust)
+child.parent.local (Child Domain)
+
+company.com (Domain A)
+    ↕ (External trust)
+partner.com (Domain B)
+```
+
+## 🔍 Active Directory Structure Deep Dive
+
+### Distinguished Names (DN) Format
+```
+CN=John Doe,OU=Users,OU=Sales,DC=company,DC=com
+│   │                  │      │                  │
+│   │                  │      │                  └─ Domain Components
+│   │                  │      └─ Organizational Units (OUs)
+│   │                  └─ Organizational Unit
+│   └─ Common Name (actual object name)
+└─ Component type (CN, OU, DC, etc.)
+```
+
+### LDAP Components
+| Component | Full Name | Example |
+|-----------|-----------|---------|
+| **CN** | Common Name | CN=Administrator |
+| **OU** | Organizational Unit | OU=Sales |
+| **DC** | Domain Component | DC=company |
+| **C** | Country | C=US |
+| **ST** | State/Province | ST=California |
+| **L** | Locality | L=San Francisco |
+| **O** | Organization | O=Company Inc |
+
+### AD Object Types
+```
+Domain Root
+├── Users Container
+│   ├── Administrator (user)
+│   ├── Guest (user)
+│   └── Domain Users (group)
+├── Computers Container
+│   ├── DESKTOP-ABC123 (computer)
+│   └── SERVER-XYZ789 (computer)
 ├── Organizational Units (OUs)
-└── Other Objects
+│   ├── IT
+│   ├── Sales
+│   ├── HR
+│   └── Finance
+├── Groups
+│   ├── Domain Admins (group)
+│   ├── Domain Users (group)
+│   └── Enterprise Admins (group)
+└── Group Policy Objects (GPOs)
+    ├── Default Domain Policy
+    └── Custom Policies
 ```
 
-#### Standard vs Non-Standard Attributes
-- **Standard Attributes**: name, description, distinguishedName, mail, etc.
-- **Non-Standard Attributes**: Custom attributes added by administrators (e.g., extensionAttribute1-15, custom properties)
+## 🛠️ Tools Reference
 
-### Tools Required
+### 1. ldapsearch (Linux/Mac/Kali) ⭐ PRIMARY TOOL
 
-#### 1. PowerShell (Windows)
+**Installation:**
+```bash
+# Kali/Ubuntu/Debian
+sudo apt-get install -y ldap-utils
+
+# macOS
+brew install openldap
+```
+
+**Basic Queries:**
+```bash
+# Discover domain naming context
+ldapsearch -H ldap://192.168.1.100 -x -b "" -s base namingContexts
+
+# Query domain object (standard attributes only)
+ldapsearch -H ldap://192.168.1.100 -x -b "DC=lab,DC=local" -s base
+
+# Query domain object (ALL attributes - standard + non-standard) 🔑 KEY QUERY
+ldapsearch -H ldap://192.168.1.100 -x -b "DC=lab,DC=local" -s base "*" "+"
+
+# Query all users
+ldapsearch -H ldap://192.168.1.100 -x -b "DC=lab,DC=local" -s sub "(objectClass=user)"
+
+# Query all groups
+ldapsearch -H ldap://192.168.1.100 -x -b "DC=lab,DC=local" -s sub "(objectClass=group)"
+
+# Query with credentials
+ldapsearch -H ldap://192.168.1.100 -x -D "cn=Administrator,cn=Users,DC=lab,DC=local" \
+  -w "P@ssw0rd123!" -b "DC=lab,DC=local" -s base "*" "+"
+
+# Save results to file
+ldapsearch -H ldap://192.168.1.100 -x -b "DC=lab,DC=local" -s base "*" "+" > ad_dump.ldif
+
+# Search for specific attribute
+ldapsearch -H ldap://192.168.1.100 -x -b "DC=lab,DC=local" -s base | grep -i extensionAttribute
+```
+
+### 2. PowerShell (Windows) - Active Directory Module
+
+**Installation:**
 ```powershell
-# Basic domain query
+# Install RSAT (Remote Server Administration Tools)
+Add-WindowsCapability -Online -Name "Rsat.ActiveDirectory.DS-LDS.Tools~~~~0.0.1.0"
+
+# Import AD module
+Import-Module ActiveDirectory
+```
+
+**Key Commands:**
+```powershell
+# Get domain information
 Get-ADDomain
 
-# Query with all properties
-Get-ADDomain | Select-Object *
+# Get ALL domain properties
+Get-ADDomain -Property *
 
-# Query specific property
-Get-ADDomain -Property * | Select-Object -Property distinguishedName, description
+# Get specific properties
+Get-ADDomain -Property * | Select-Object -Property distinguishedName, description, extensionAttribute*
+
+# Get all users
+Get-ADUser -Filter * -Properties *
+
+# Get all groups
+Get-ADGroup -Filter * -Properties *
+
+# Get all computers
+Get-ADComputer -Filter * -Properties *
+
+# Search for specific user
+Get-ADUser -Identity "Administrator" -Properties *
+
+# Export to CSV for analysis
+Get-ADDomain -Property * | Export-Csv -Path domain_info.csv -NoTypeInformation
 ```
 
-#### 2. ldapsearch (Linux/Mac)
+### 3. Nmap - Network Scanning
+
+**Key Commands:**
 ```bash
-# Basic LDAP query
-ldapsearch -H ldap://domain_controller -x -b "DC=domain,DC=com" -s base
+# Scan for LDAP service (port 389)
+nmap -p 389 192.168.1.100
 
-# Query with specific attributes
-ldapsearch -H ldap://domain_controller -x -b "DC=domain,DC=com" -s base "*" "+"
+# Scan for Kerberos (port 88)
+nmap -p 88 192.168.1.100
 
-# Save to file
-ldapsearch -H ldap://domain_controller -x -b "DC=domain,DC=com" -s base "*" "+" > domain_dump.ldif
+# Scan for common AD ports
+nmap -p 88,389,445,636 192.168.1.100
+
+# OS detection with AD ports
+nmap -O -p 88,389,445 192.168.1.100
 ```
 
-#### 3. ADExplorer (Windows Sysinternals)
-- GUI tool for browsing Active Directory
+### 4. smbclient - SMB Shares
+
+```bash
+# List shares
+smbclient -L //192.168.1.100 -U administrator
+
+# Connect to share
+smbclient //192.168.1.100/C$ -U administrator
+
+# Null session enumeration
+smbclient -L //192.168.1.100 -U "" -N
+```
+
+## 📋 Challenge 0: Domain Reconnaissance - Extracting Core Domain Information
+
+### 🎯 Challenge Objective
+
+Every Active Directory environment exposes fundamental information through its root domain object. Your mission is to:
+
+1. ✅ **Query** the Active Directory domain object
+2. ✅ **Inspect** both standard and non-standard attributes
+3. ✅ **Identify** the attribute containing the hidden flag
+4. ✅ **Extract** and document the flag
+
+**Hint:** Standard domain queries do not return all available attributes. Some fields require **explicit property requests** to be visible.
+
+### 🔑 Key Challenge Points
+
+- Standard LDAP queries miss hidden attributes
+- The **`"+"`** flag in ldapsearch reveals operational/custom attributes
+- Flags are typically hidden in non-standard attributes like:
+  - `extensionAttribute1-15`
+  - `description`
+  - `adminDescription`
+  - `info`
+  - Custom schema attributes
+
+### 📊 Standard vs Non-Standard Attributes
+
+| Attribute Type | Description | Visible By Default? | Examples |
+|---|---|---|---|
+| **Standard** | Core AD attributes | ✅ Yes | name, mail, phone |
+| **Operational** | System attributes | ❌ No (need +) | createTimeStamp, modifyTimeStamp |
+| **Extension** | Custom attributes | ❌ No (need +) | extensionAttribute1-15 |
+| **Custom Schema** | Organization-specific | ❌ No (need +) | Any custom attribute |
 - View all attributes without special parameters
 - Search and filter capabilities
 
